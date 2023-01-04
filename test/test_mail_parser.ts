@@ -87,4 +87,17 @@ describe('mail parser', () => {
     expect(bcc).to.be.undefined;
     expect(date).to.deep.equal(new Date('Sun, 12 Jun 2022 17:21:02 +0200'));
   });
+
+  it('parses address groups', async () => {
+    const eml = await read_file("multipart-addresses-groups");
+    const { from, to, cc, bcc } = parseMail(eml);
+
+    expect(from).to.deep.equal({ name: 'Some One', email: 'someone@test.com' });
+    expect(to).to.deep.equal([{ name: 'undisclosed-recipients', group: [] }]);
+    expect(cc).to.deep.equal([
+      { name: 'Group A', group: [{ name: 'AA', email: 'a@b.com' }, { name: 'AB', email: 'a@b.com' }] },
+      { name: 'Group B', group: [{ name: '', email: 'b@b.com' }] }
+    ]);
+    expect(bcc).to.be.undefined;
+  });
 });

@@ -10,7 +10,9 @@ interface Attachment {
   contentId?: string;
 }
 
-type EmailAddress = { name: string, email: string };
+type Address = { name: string, email: string };
+type Group = { name: string, group: Address[] };
+type AddressOrGroup = Address | Group;
 
 export interface ParsedMessage {
   attachments: Attachment[];
@@ -21,11 +23,11 @@ export interface ParsedMessage {
   },
   date?: Date;
   subject?: string,
-  from?: EmailAddress,
-  to?: EmailAddress[],
-  cc?: EmailAddress[],
-  bcc?: EmailAddress[],
-  'reply-to'?: EmailAddress
+  from?: Address,
+  to?: AddressOrGroup[],
+  cc?: AddressOrGroup[],
+  bcc?: AddressOrGroup[],
+  'reply-to'?: Address
 }
 
 export function parseMail(message: string): ParsedMessage;
