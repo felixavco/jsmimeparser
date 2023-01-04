@@ -62,8 +62,8 @@ const {
   attachments, // [{ contentType: 'image/gif', fileName: 'smile.gif', content: Uint8Array[71, 73, 70..], ... }]
   body, // { text: 'Hello Alice.\nThis is..', html: '' }
   subject, // 'Test message'
-  from, // // '"Bob Example" <bob@internet.com>'
-  to, // ['"Alice Example" <alice@internet.com>']
+  from, // // { name: 'Bob Example', email: 'bob@internet.com' }
+  to, // [{ name: 'Alice Example', email: 'alice@internet.com' }]
   date, // Date('Wed, 20 Aug 2003 16:02:43 -0500')
   ...rest // headers and more
 } = parseMail(eml);
