@@ -118,6 +118,17 @@ export function read_file(file, start = undefined, end = undefined) {
   });
 }
 
+export function read_file_raw(file) {
+  return new Promise(function(resolve, reject) {
+      fetch('base/test/data/' + file)
+        .then(response => response.ok ? response.arrayBuffer() : reject(new Error('error fetching file')))
+        .then(buffer => {
+          resolve(new Uint8Array(buffer))
+        })
+        .catch(err => reject(err))
+    });
+}
+
 export function isWebKit() {
   // simply testing the 'webkit' appears in the userAgent is not enough, as that is the case for
   // any browser running on macOS.

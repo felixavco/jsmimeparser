@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { read_file } from "./utils";
+import { read_file_raw } from "./utils";
 import { parseMail } from "../";
 import { uint8ArrayToString } from "../lib/utils";
 
@@ -7,7 +7,7 @@ const toBase64 = uInt8Array => btoa(uint8ArrayToString(uInt8Array));
 
 describe('mail parser', () => {
   it('correctly parses multipart message with both HTML and plain text data', async () => {
-    const eml = await read_file("multipart-complex1");
+    const eml = await read_file_raw("multipart-complex1");
     const { body, attachments } = parseMail(eml);
 
     expect(body.html).to.equal('<html><head>This part should be returned.</head></html>\n');
@@ -22,11 +22,28 @@ describe('mail parser', () => {
     expect(attachments[1].fileName).to.equal('');
   });
 
+  it('correctly parses UTF-8 string input', async () => {
+    const eml = `Content-Type: multipart/mixed;
+    boundary="------------cJMvmFk1NneB7MT4jwYHY7ap"
+
+This is a multi-part message in MIME format.
+--------------cJMvmFk1NneB7MT4jwYHY7ap
+Content-Type: text/plain; charset=UTF-8;
+Content-Transfer-Encoding: 8bit
+
+Import HTML cöntäct//Subjεέςτ//
+
+--------------cJMvmFk1NneB7MT4jwYHY7ap--`;
+    const { body } = parseMail(eml);
+
+    expect(body.text).to.equal('Import HTML cöntäct//Subjεέςτ//\n');
+  });
+
   it('correctly parses SHIFT-JIS body with png attachment', async () => {
     const expectedText = 'Portable Network Graphics（ポータブル・ネットワーク・グラフィックス、PNG）はコンピュータでビットマップ画像を扱うファイルフォーマットである。圧縮アルゴリズムとしてDeflateを採用している、圧縮による画質の劣化のない可逆圧縮の画像ファイルフォーマットである。\n';
     const expectedAttachmentContent = 'iVBORw0KGgoAAAANSUhEUgAAAIAAAABECAIAAADGJao+AAAAwklEQVR4Xu3UgQbDMBRA0bc03f//b7N0VuqJEmwoc+KqNEkDh9b+2HuJu1KNO4f+AQCAAAAQAAACAEAAAAgAAAEAIAAABACAAAAQAAACAEAAAAgAAAEAIAAAANReamRLlPWYfNH0klxcPs+cP3NxWF+vi3lb7pa2R+vx6tHOtuN1O+a5lY3HzgM5ya/GM5N7ZjfPq7/5yS8IgAAAEAAAAgBAAAAIAAABACAAAAQAgAAAEAAAAgBAAAAIAAABACAAAIw322gDIPvtlmUAAAAASUVORK5CYII=';
 
-    const eml = await read_file("shift-jis-image");
+    const eml = await read_file_raw("shift-jis-image");
     const { body, subject, headers, attachments: [attachment] } = parseMail(eml);
 
     expect(body.text).to.equal(expectedText);
@@ -39,7 +56,7 @@ describe('mail parser', () => {
   });
 
   it('correctly reads binary attachments', async () => {
-    const eml = await read_file("multipart-binary");
+    const eml = await read_file_raw("multipart-binary");
     const { attachments: [attachment] } = parseMail(eml);
 
     expect(attachment.content).to.deep.equal(new Uint8Array([1, 2, 3]));
@@ -48,7 +65,7 @@ describe('mail parser', () => {
   });
 
   it('includes the content-id and filename for each attachment', async () => {
-    const eml = await read_file("multipart-content-id");
+    const eml = await read_file_raw("multipart-content-id");
     const { attachments: [attachment1, attachment2] } = parseMail(eml);
 
     expect(attachment1.content).to.deep.equal(attachment2.content);
@@ -60,7 +77,7 @@ describe('mail parser', () => {
   });
 
   it('returns an empty array for empty attachment body', async () => {
-    const eml = await read_file("multipart-empty-attachment");
+    const eml = await read_file_raw("multipart-empty-attachment");
     const { attachments: [attachment] } = parseMail(eml);
 
     expect(attachment.content).to.be.instanceOf(Uint8Array);
@@ -70,7 +87,7 @@ describe('mail parser', () => {
   });
 
   it('decodes the subject', async () => {
-    const eml = await read_file("multipart-encrypted-subject-utf8");
+    const eml = await read_file_raw("multipart-encrypted-subject-utf8");
     const { subject, body } = parseMail(eml);
 
     expect(subject).to.equal('subject with emojis 😃😇');
@@ -78,7 +95,7 @@ describe('mail parser', () => {
   });
 
   it('parses addresses and date', async () => {
-    const eml = await read_file("multipart-addresses");
+    const eml = await read_file_raw("multipart-addresses");
     const { from, to, cc, bcc, date } = parseMail(eml);
 
     expect(from).to.deep.equal({ name: 'Some One', email: 'someone@test.com' });
@@ -89,7 +106,7 @@ describe('mail parser', () => {
   });
 
   it('parses address groups', async () => {
-    const eml = await read_file("multipart-addresses-groups");
+    const eml = await read_file_raw("multipart-addresses-groups");
     const { from, to, cc, bcc } = parseMail(eml);
 
     expect(from).to.deep.equal({ name: 'Some One', email: 'someone@test.com' });

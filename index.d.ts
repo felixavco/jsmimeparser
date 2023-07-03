@@ -30,4 +30,4 @@ export interface ParsedMessage {
   'reply-to'?: Address
 }
 
-export function parseMail(message: string): ParsedMessage;
+export function parseMail(message: string | Uint8Array): ParsedMessage;
