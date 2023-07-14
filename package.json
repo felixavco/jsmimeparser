@@ -24,6 +24,8 @@
     "url": "https://github.com/ProtonMail/jsmimeparser/issues"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
     "chai": "^4.3.6",
     "eslint": "^8.4.1",
     "eslint-config-airbnb-base": "^15.0.0",
