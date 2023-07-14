@@ -18,8 +18,8 @@ export interface ParsedMessage {
   attachments: Attachment[];
   headers: Headers;
   body: {
-    html: string; // 'text/html' body parts, joined together separated by <br>\n
-    text: string; // 'text/plain' body parts, joined together separated by \n
+    html: string | null; // 'text/html' body parts, joined together separated by <br>\n
+    text: string | null; // 'text/plain' body parts, joined together separated by \n
   },
   date?: Date;
   subject?: string,

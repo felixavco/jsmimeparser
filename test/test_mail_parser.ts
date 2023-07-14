@@ -86,6 +86,27 @@ Import HTML cöntäct//Subjεέςτ//
     expect(attachment.fileName).to.equal('');
   });
 
+  it('returns null for non-existent html body', async () => {
+    const eml = `Content-Type: multipart/mixed; boundary="------------P7E1gxp6rCvfn0to5n3PZ2h0";
+    protected-headers="v1"
+From: Sender <sender@test.com>
+To: receiver@test.com
+Message-ID: <39b3134c-0fcd-4618-b1bd-2b20481bf2af>
+Subject: Empty message test
+
+--------------P7E1gxp6rCvfn0to5n3PZ2h0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+
+--------------P7E1gxp6rCvfn0to5n3PZ2h0--`
+    const { subject, body: { html, text } } = parseMail(eml);
+
+    expect(subject).to.equal('Empty message test');
+    expect(text).to.equal('');
+    expect(html).to.be.null;
+  });
+
   it('decodes the subject', async () => {
     const eml = await read_file_raw("multipart-encrypted-subject-utf8");
     const { subject, body } = parseMail(eml);
